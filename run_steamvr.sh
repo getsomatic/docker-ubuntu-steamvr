@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-
+# Copyright 2017 Jared H. Hudson <jhhudso@volumehost.com>
+# Licensed under BSD-3-Clause. Reference https://opensource.org/licenses/BSD-3-Clause
+#
 DOCKER=docker
 echo -n "Checking if we can communicate with docker..."
 if ! docker info >/dev/null 2>&1; then
