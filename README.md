@@ -7,7 +7,7 @@ An example of Steam and SteamVR working within a Ubuntu Docker container
 ```bash
 git clone https://github.com/jhhudso/docker-ubuntu-steamvr
 cd docker-ubuntu-steamvr
-sudo ./buid.sh
+sudo ./build.sh
 ```
 
 ## Running First time -- Setup Steam and SteamVR
