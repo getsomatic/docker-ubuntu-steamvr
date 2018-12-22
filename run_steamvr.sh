@@ -53,14 +53,17 @@ declare -a VSHARES
 
 if [ -z "$STEAMCONTAINER" ]; then
 	STEAMCONTAINER="/home/$USER/SteamContainer/"
-	if [ ! -d "$STEAMCONTAINER" ]; then
+fi
+
+if [ "$STEAMCONTAINER" = "0" ]; then
+    unset STEAMCONTAINER
+else
+    if [ ! -d "$STEAMCONTAINER" ]; then
 	    if ! mkdir "$STEAMCONTAINER"; then
 	    	printf "Error creating directory %s\n" "$STEAMCONTAINER"	    	
 	    	unset STEAMCONTAINER
 	    fi
 	fi
-elif [ "$STEAMCONTAINER" = "0" ]; then
-    unset STEAMCONTAINER
 fi
 
 if [ -n "$STEAMCONTAINER" ]; then
