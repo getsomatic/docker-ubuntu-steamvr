@@ -40,6 +40,7 @@ fi
 echo "Found and using ${DOCKER_IMAGE_ID}"
 
 USER_UID=$(id -u)
+test -z "$USER" && USER=$(id -un)
 
 test "$USER_UID" -eq 0 && USER_UID=1000
 
@@ -49,29 +50,41 @@ if [ -z "$XAUTHORITY" ]; then
 fi
 
 declare -a VSHARES
+
+if [ -z "$STEAMCONTAINER" ]; then
+	STEAMCONTAINER="/home/$USER/SteamContainer/"
+	if [ ! -d "$STEAMCONTAINER" ]; then
+	    if ! mkdir "$STEAMCONTAINER"; then
+	    	printf "Error creating directory %s\n" "$STEAMCONTAINER"	    	
+	    	unset STEAMCONTAINER
+	    fi
+	fi
+elif [ "$STEAMCONTAINER" = "0" ]; then
+    unset STEAMCONTAINER
+fi
+
+if [ -n "$STEAMCONTAINER" ]; then
+    printf "Steam Container directory is %s\n" "$STEAMCONTAINER"
+    ls -ld "$STEAMCONTAINER"
+fi
+
 VSHARES[0]="--volume=/run/user/${USER_UID}/pulse/:/run/user/1000/pulse/"
 VSHARES[1]="--volume=/tmp/.X11-unix/:/tmp/.X11-unix/"
-if [ -n "$STEAMLIBRARY" ]; then
-    VSHARES[2]="--volume=$STEAMLIBRARY:$STEAMLIBRARY"
-fi
+test -n "$STEAMCONTAINER" && VSHARES[2]="--volume=$STEAMCONTAINER:/home/steam/.local/share/Steam"
 
 printf "Stopping container steamvr..."
 if $DOCKER container stop steamvr >/dev/null; then
 	printf "SUCCESS!\n"
 else
-	printf "FAILURE! Try stopping steamvr container manually.\n"
-	exit 4
+	printf "FAILURE!\n"
 fi
 
 printf "Removing container steamvr..."
 if $DOCKER container rm steamvr >/dev/null; then
 	printf "SUCCESS!\n"
 else
-	printf "FAILURE! Try removing steamvr container manually.\n"
-	exit 4
+	printf "FAILURE!\n"
 fi
-
-
 
 test -z "$DISPLAY" && DISPLAY=:0
 
@@ -99,6 +112,7 @@ $DOCKER exec steamvr chown $USER_UID:$USER_UID /home/steam/.Xauthority
 
 $DOCKER exec -i --privileged -t -u steam steamvr "${STEAM[@]}"
 $DOCKER container stop steamvr
+
 if [ "$CONFIGURED" -ne 1 ]; then
     $DOCKER commit steamvr docker-ubuntu-steamvr-configured
 else
