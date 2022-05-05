@@ -1,7 +1,7 @@
 FROM ubuntu
 MAINTAINER Jared H. Hudson <jhhudso@volumehost.com>
 
-ENV UNAME steam
+ENV UNAME somatic
 
 RUN dpkg --add-architecture i386
 RUN apt-get update
@@ -14,31 +14,32 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install --yes mesa-utils xauth kmod \
 
 RUN wget http://media.steampowered.com/client/installer/steam.deb && \
     DEBIAN_FRONTEND=noninteractive gdebi -n steam.deb && rm steam.deb
-# RUN wget http://us.download.nvidia.com/tesla/410.79/NVIDIA-Linux-x86_64-410.79.run && \
-#     chmod a+x NVIDIA-Linux-x86_64-410.79.run && \
-#     ./NVIDIA-Linux-x86_64-410.79.run --skip-module-unload --no-kernel-module --no-x-check --silent && \
-#     rm ./NVIDIA-Linux-x86_64-410.79.run
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y nvidia-driver-510;
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libsdl2-dev libsdl2-2.0-0 ;
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libsdl2-dev libsdl2-2.0-0 lshw;
 
 COPY pulse-client.conf /etc/pulse/client.conf
 
-# # Set up the user
-# RUN export UNAME=$UNAME UID=1000 GID=1000 && \
-#     useradd -mU -u 1000 ${UNAME} && \
-#     mkdir -p /etc/sudoers.d && \
-#     echo "${UNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${UNAME} && \
-#     chmod 0440 /etc/sudoers.d/${UNAME} && \
-#     chown ${UID}:${GID} -R /home/${UNAME} && \
-#     gpasswd -a ${UNAME} audio
-#
-# # Set up Steam
-# RUN export UNAME=$UNAME UID=1000 GID=1000 && \
-#     mkdir -p /home/steam/.local/share/Steam && \
-#     chown steam:steam -R /home/steam/.local/
+RUN echo "none x" >> /etc/security/capability.conf;
 
-RUN mkdir -p /home/steam/.local/share/Steam
+# Set up the user
+RUN export UNAME=$UNAME UID=1000 GID=1000 && \
+    useradd -mU -u 1000 ${UNAME} && \
+    mkdir -p /etc/sudoers.d && \
+    echo "${UNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${UNAME} && \
+    chmod 0440 /etc/sudoers.d/${UNAME} && \
+    chown ${UID}:${GID} -R /home/${UNAME} && \
+    gpasswd -a ${UNAME} audio
+
+USER somatic
+
+# Set up Steam
+RUN export UNAME=$UNAME UID=1000 GID=1000 && \
+    mkdir -p /home/somatic/.local/share/Steam && \
+    chown somatic:somatic -R /home/somatic/.local/
+
+ENV VRCOMPOSITOR_LD_LIBRARY_PATH /home/somatic/.local/share/Steam/steamapps/common/SteamVR/bin/linux64/
 
 # run
 CMD ["/bin/bash","-l"]
+

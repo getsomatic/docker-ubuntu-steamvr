@@ -111,9 +111,12 @@ $DOCKER cp "$TMPFILE" steamvr:/root/.Xauthority
 rm "$TMPFILE"
 
 $DOCKER start steamvr
-$DOCKER exec steamvr chown $USER_UID:$USER_UID /home/steam/.Xauthority
+$DOCKER exec steamvr chown $USER_UID:$USER_GID -R /home/steam/.Xauthority /home/steam/.local/
 
-$DOCKER exec -i --privileged -t -u steam steamvr "${STEAM[@]}"
+# sudo setcap 'cap_sys_nice=eip' ~/.local/share/Steam/steamapps/common/SteamVR/bin/linux64/vrcompositor-launcher
+# sudo chmod g+rw /dev/hidraw5 /dev/hidraw6 /dev/hidraw8 /dev/hidraw9; sudo chgrp somatic /dev/hidraw5 /dev/hidraw6 /dev/hidraw8 /dev/hidraw9
+
+$DOCKER exec -i --privileged -it -u somatic steamvr "${STEAM[@]}"
 $DOCKER container stop steamvr
 
 if [ "$CONFIGURED" -ne 1 ]; then
