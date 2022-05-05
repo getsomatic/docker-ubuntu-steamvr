@@ -121,6 +121,7 @@ $DOCKER container stop steamvr
 
 if [ "$CONFIGURED" -ne 1 ]; then
     $DOCKER commit steamvr docker-ubuntu-steamvr-configured
+    echo "Changes committed!"
 else
     echo "Changes not saved yet. To commit run $DOCKER commit steamvr docker-ubuntu-steamvr-configured:latest"
 fi

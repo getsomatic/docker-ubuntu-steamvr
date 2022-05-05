@@ -1,0 +1,14 @@
+function vr_build(){
+cd ~/development/vr_docker/docker-ubuntu-steamvr;
+sudo ./build.sh;
+}
+
+function vr_run(){
+cd ~/development/vr_docker/docker-ubuntu-steamvr;
+./run_steamvr.sh;
+}
+
+
+function vr_exec(){
+docker exec -it -u somatic steamvr /bin/bash;
+}
